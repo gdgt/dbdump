@@ -34,3 +34,20 @@
 *Optional: if you have Kerberos enabled Cluster. Confirm that principals are generated. If there are no principals, simply import kerberos account manager credentials again and regenerate credentials*
 `Cloudera Manager UI> Administration> Security> Kerberos Credentials> Import Kerberos Account Manager Credentials
 `
+
+# db.properties example contents
+    # Properties file for controlling ScmPgDump.java
+    # Driver information as appear in /etc/cloudera-scm-server/db.properties
+    # ==================
+    # These are mandatory, you must provide appropriate values
+    com.cloudera.cmf.db.type=postgresql
+    com.cloudera.cmf.db.host=embedded.postgresql.host:7432
+    com.cloudera.cmf.db.name=scm
+    com.cloudera.cmf.db.user=scm
+    com.cloudera.cmf.db.password=Rv3qXmCB8G
+    outputFile=out.sql
+    # DO NOT MODIFY tablesToSkip for scm Databases
+    tablesToSkip=audits,client_configs,client_configs_to_hosts,commands,credentials,metrics,user_settings
+    toUpper=True
+    catalog=null
+    schemaPattern=public
