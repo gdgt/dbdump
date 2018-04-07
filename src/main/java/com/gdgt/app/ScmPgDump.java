@@ -1,12 +1,14 @@
 package com.gdgt.app;
 
+
+import org.apache.commons.text.StringEscapeUtils;
+
 import java.io.*;
 import java.nio.file.Files;
 import java.sql.*;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Properties;
-
 
 /**
  * ScmPgDump
@@ -33,6 +35,22 @@ public class ScmPgDump {
   }
 
   /**
+   * convert a byte array to a hex string in Java
+   * https://stackoverflow.com/a/9855338/528634
+   */
+  private final static char[] hexArray = "0123456789ABCDEF".toCharArray();
+
+  public static String bytesToHex(byte[] bytes) {
+    char[] hexChars = new char[bytes.length * 2];
+    for (int j = 0; j < bytes.length; j++) {
+      int v = bytes[j] & 0xFF;
+      hexChars[j * 2] = hexArray[v >>> 4];
+      hexChars[j * 2 + 1] = hexArray[v & 0x0F];
+    }
+    return new String(hexChars);
+  }
+
+  /**
    * Dump the whole results to an output file
    */
   private static void saveToFile(Properties props, StringBuffer data) {
@@ -40,14 +58,14 @@ public class ScmPgDump {
 
     try {
       file = new File(props.getProperty("outputFile"));
-      boolean result = Files.deleteIfExists(file.toPath());
+      Files.deleteIfExists(file.toPath());
 
       BufferedWriter bwr = new BufferedWriter(new FileWriter(file));
       data.append("\n-- DONE: ").append(new SimpleDateFormat("dd/MMM/yyyy HH:mm:ss.SSS")
               .format(new java.util.Date()));
       bwr.write(data.toString());
       bwr.flush();
-      System.out.println(data.toString());
+      // System.out.println(data.toString());
       System.out.println("-- Dump file saved in: " + file.toPath());
 
       System.exit(0);
@@ -92,9 +110,16 @@ public class ScmPgDump {
     try {
       StringBuffer result = new StringBuffer();
       Boolean toUpper = props.getProperty("toUpper").isEmpty();
-      String catalog = props.getProperty("catalog");
       String schema = props.getProperty("schemaPattern");
-      String[] tablesToSkip = props.getProperty("tablesToSkip").trim().split(",");
+
+      String catalog = null;
+      if (props.containsKey("catalog")) {
+         catalog = props.getProperty("catalog");
+      }
+      String[] tablesToSkip = {};
+      if (props.containsKey("tablesToSkip")) {
+        tablesToSkip = props.getProperty("tablesToSkip").trim().split(",");
+      }
       result.append("-- Generated: ").append(
               new SimpleDateFormat("dd/MMM/yyyy HH:mm:ss.SSS").format(new java.util.Date()));
 
@@ -111,6 +136,7 @@ public class ScmPgDump {
             String tableName = rs.getString("TABLE_NAME");
             if (!Arrays.asList(tablesToSkip).contains(tableName))
               if ("TABLE".equalsIgnoreCase(rs.getString("TABLE_TYPE"))) {
+                System.out.println("Dumping TABLE: " + tableName);
                 dumpTable(dbConn, result, toUpper ? tableName : tableName.toUpperCase());
               }
           } while (rs.next());
@@ -120,13 +146,13 @@ public class ScmPgDump {
       dbConn.close();
       return result;
     } catch (SQLException e) {
-      e.printStackTrace();  //To change body of catch statement use Options | File Templates.
+      e.printStackTrace();
     }
     return null;
   }
 
   /**
-   * Dump this particular table to the string buffer
+   * Dump this particular table to string buffer
    */
   private static void dumpTable(Connection dbConn, StringBuffer result, String tableName) {
     try {
@@ -157,7 +183,9 @@ public class ScmPgDump {
       while (rs.next()) {
         result.append("INSERT INTO ").append(tableName).append(" (").append(columnNames)
                 .append(") VALUES (");
+
         // Mapping SQL and Java Types PG > MySQL
+        // https://www.cs.mun.ca/java-api-1.5/guide/jdbc/getstart/mapping.html
         for (int i = 0; i < columnCount; i++) {
           if (i > 0) {
             result.append(", ");
@@ -180,6 +208,12 @@ public class ScmPgDump {
               }
               break;
             case Types.BIT:
+              if (object == null) {
+                result.append("NULL");
+              } else {
+                result.append(((Boolean) rs.getObject(i + 1)) ? (short) 1 : (short) 0);
+              }
+              break;
             case Types.BOOLEAN:
               if (object instanceof Boolean) {
                 result.append(((Boolean) rs.getObject(i + 1)) ? (short) 1 : (short) 0);
@@ -205,21 +239,27 @@ public class ScmPgDump {
                         .getTime())).append("'");
               }
               break;
-            case Types.DATE:
-            case Types.TIME:
             case Types.BINARY:
-            case Types.BLOB:
-            case Types.CLOB:
-              // Current unsupported, setting to NULL
-              result.append("NULL");
+              if (object == null) {
+                result.append("NULL");
+              } else {
+                result.append("X'").append(bytesToHex(rs.getBytes(i + 1))).append("'");
+              }
+              break;
+            case Types.VARCHAR:
+              if (object == null) {
+                result.append("NULL");
+              } else {
+                String escaped = StringEscapeUtils.escapeJava(rs.getObject(i + 1).toString());
+                result.append("\"").append(escaped).append("\"");
+              }
               break;
             default:
               if (object == null) {
                 result.append("NULL");
               } else {
-                String outputValue = rs.getObject(i + 1).toString();
-                outputValue = outputValue.replace("'", "\\'");
-                result.append("'").append(outputValue).append("'");
+                String escaped = StringEscapeUtils.escapeJava(rs.getObject(i + 1).toString());
+                result.append("\"").append(escaped).append("\"");
               }
               break;
           }

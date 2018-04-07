@@ -2,12 +2,12 @@
 	STOP Cluster
 	STOP MGMT services
 # dump embedded PostgresSQL and generate MySQL compliant DDL/DML
-	$ java -cp .:ScmPgDump-1.0-SNAPSHOT.jar:postgresql-9.4-1200-jdbc41.jar com.gdgt.app.ScmPgDump ./db.properties
+	$ java -cp .:ScmPgDump-1.0-SNAPSHOT-jar-with-dependencies.jar:postgresql-9.4-1200-jdbc41.jar com.gdgt.app.ScmPgDump ./db.properties
 
 # Stop Cloudera Manager Agent on all nodes
 	[all nodes] service cloudera-scm-agent stop
 
-# Backup embedded PostgresSQL db.properties 
+# Backup embedded PostgresSQL db.properties
 	cp /etc/cloudera-scm-server/db.properties /etc/cloudera-scm-server/db.properties.embedded
 
 # Make sure scm db doesn't exist in MySQL.
@@ -15,7 +15,7 @@
 
 # Setting up the Cloudera Manager Server Database.
 	sudo /usr/share/cmf/schema/scm_prepare_database.sh mysql -h $(hostname -f) -utemp -ppassword --scm-host $(hostname -f) scm scm scm
-	Full instructions here: https://www.cloudera.com/documentation/enterprise/5-6-x/topics/cm_ig_installing_configuring_dbs.html#cmig_topic_5_2
+	Full instructions here: https://www.cloudera.com/documentation/enterprise/latest/topics/cm_ig_installing_configuring_dbs.html#cmig_topic_5_2
 
 # Restart Cloudera Manager server to populate the MySQL CM Schema
 	service cloudera-scm-server restart
@@ -46,8 +46,8 @@
     com.cloudera.cmf.db.user=scm
     com.cloudera.cmf.db.password=Rv3qXmCB8G
     outputFile=out.sql
-    # DO NOT MODIFY tablesToSkip for scm Databases
-    tablesToSkip=audits,client_configs,client_configs_to_hosts,commands,credentials,metrics,user_settings
     toUpper=True
-    catalog=null
     schemaPattern=public
+    # tablesToSkip for scm Databases, e.g. audits
+    # tablesToSkip=audits
+    # catalog=
