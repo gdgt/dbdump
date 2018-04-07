@@ -17,11 +17,12 @@
 	sudo /usr/share/cmf/schema/scm_prepare_database.sh mysql -h $(hostname -f) -utemp -ppassword --scm-host $(hostname -f) scm scm scm
 	Full instructions here: https://www.cloudera.com/documentation/enterprise/latest/topics/cm_ig_installing_configuring_dbs.html#cmig_topic_5_2
 
-# Restart Cloudera Manager server to populate the MySQL CM Schema
+# Start Cloudera Manager server to populate the MySQL CM Schema, followed by Stop once the schema is populated.
 	service cloudera-scm-server restart
 	while ! (exec 6<>/dev/tcp/$(hostname)/7180) 2> /dev/null ; do echo 'Waiting for Cloudera Manager to start accepting connections...'; sleep 10; done
+	service cloudera-scm-server stop
 
-# Import the dump using MySQL CLI and restart Cloudera Manager Server
+# Import the dump using MySQL CLI and restart Cloudera Manager Server.
 	mysql -u scm -pscm scm < out.sql
 	_OR_ to monitor the progress of the import
 	yum install -y pv
