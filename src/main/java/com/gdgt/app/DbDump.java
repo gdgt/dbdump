@@ -191,6 +191,7 @@ public class DbDump {
 
         // Mapping SQL and Java Types PG > MySQL
         // https://www.cs.mun.ca/java-api-1.5/guide/jdbc/getstart/mapping.html
+        // https://github.com/pgjdbc/pgjdbc/blob/master/pgjdbc/src/main/java/org/postgresql/jdbc/TypeInfoCache.java#L67-L95
         for (int i = 0; i < columnCount; i++) {
           if (i > 0) {
             result.append(", ");
@@ -231,19 +232,6 @@ public class DbDump {
                 result.append(rs.getShort(i + 1));
               }
               break;
-            case Types.TINYINT:
-              if (object == null) {
-                result.append("NULL");
-              } else {
-                result.append(rs.getByte(i + 1));
-              }
-              break;
-            case Types.TIMESTAMP:
-              if (object instanceof java.util.Date) {
-                result.append("'").append(new Timestamp(((java.util.Date) object)
-                        .getTime())).append("'");
-              }
-              break;
             case Types.BINARY:
               if (object == null) {
                 result.append("NULL");
@@ -260,13 +248,11 @@ public class DbDump {
               }
               break;
             default:
-              if (object == null) {
-                result.append("NULL");
-              } else {
-                String escaped = StringEscapeUtils.escapeJava(rs.getObject(i + 1).toString());
-                result.append("\"").append(escaped).append("\"");
-              }
-              break;
+              throw new UnsupportedOperationException("UnsupportedOperationException type: " +
+                      metaData.getColumnName(i+1) + ", " +
+                      metaData.getColumnTypeName(i+1) + ", " +
+                      metaData.getColumnType(i+1)
+              );
           }
         }
         result.append(");\n");
