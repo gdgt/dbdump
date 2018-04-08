@@ -2,7 +2,7 @@
 	STOP Cluster
 	STOP MGMT services
 # dump embedded PostgresSQL and generate MySQL compliant DDL/DML
-	$ java -cp .:ScmPgDump-1.0-SNAPSHOT-jar-with-dependencies.jar:postgresql-9.4-1200-jdbc41.jar com.gdgt.app.ScmPgDump ./db.properties
+	$ java -cp .:DbDump-1.0-SNAPSHOT-jar-with-dependencies.jar:postgresql-9.4-1200-jdbc41.jar com.gdgt.app.DbDump ./db.properties
 
 # Stop Cloudera Manager Agent on all nodes
 	[all nodes] service cloudera-scm-agent stop
@@ -37,15 +37,15 @@
 `
 
 # db.properties example contents
-    # Properties file for controlling ScmPgDump.java
+    # Properties file for controlling com.gdgt.app.DbDump
     # Driver information as appear in /etc/cloudera-scm-server/db.properties
     # ==================
     # These are mandatory, you must provide appropriate values
-    com.cloudera.cmf.db.type=postgresql
-    com.cloudera.cmf.db.host=embedded.postgresql.host:7432
-    com.cloudera.cmf.db.name=scm
-    com.cloudera.cmf.db.user=scm
-    com.cloudera.cmf.db.password=Rv3qXmCB8G
+    db.type=postgresql
+    db.host=embedded.postgresql.host:7432
+    db.name=scm
+    db.user=scm
+    db.password=Rv3qXmCB8G
     outputFile=out.sql
     toUpper=True
     schemaPattern=public

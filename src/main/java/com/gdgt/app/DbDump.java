@@ -2,6 +2,8 @@ package com.gdgt.app;
 
 
 import org.apache.commons.text.StringEscapeUtils;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -11,17 +13,20 @@ import java.util.Arrays;
 import java.util.Properties;
 
 /**
- * ScmPgDump
+ * DbDump
  */
-public class ScmPgDump {
-  private static final String CMF_DB_PREFIX = "com.cloudera.cmf.db.";
+public class DbDump {
+  private static final String CMF_DB_PREFIX = "db.";
+
+  private static final Logger LOG = LogManager.getLogger(DbDump.class.getName());
 
   /**
    * Main method takes arguments for connection to JDBC etc.
    */
   public static void main(String[] args) {
+
     if (args.length != 1) {
-      System.err.println("usage: ScmPgDump <property file>");
+      LOG.error("usage: DbDump <property file>");
     }
     // Right so there's one argument, we assume it's a property file
     // so lets open it
@@ -30,7 +35,7 @@ public class ScmPgDump {
       props.load(new FileInputStream(args[0]));
       saveToFile(props, dumpDb(props));
     } catch (IOException e) {
-      System.err.println("Unable to open property file: " + args[0] + " exception: " + e);
+      LOG.error("Unable to open property file: " + args[0] + " exception: " + e);
     }
   }
 
@@ -66,11 +71,11 @@ public class ScmPgDump {
       bwr.write(data.toString());
       bwr.flush();
       // System.out.println(data.toString());
-      System.out.println("-- Dump file saved in: " + file.toPath());
+      LOG.info("-- Dump file saved in: " + file.toPath());
 
       System.exit(0);
     } catch (IOException e) {
-      System.out.println("Error occurred while saving to file.\n " + e.getMessage());
+      LOG.error("Error occurred while saving to file.\n " + e.getMessage());
     }
   }
 
@@ -90,7 +95,7 @@ public class ScmPgDump {
       driverClassName = "org.postgresql.Driver";
     } else {
       // NOT SUPPORTED
-      System.out.println("Unsupported db.type");
+      LOG.error("Unsupported db.type");
       System.exit(1);
     }
 
@@ -103,7 +108,7 @@ public class ScmPgDump {
               props.getProperty(CMF_DB_PREFIX + "password"));
       dbMetaData = dbConn.getMetaData();
     } catch (Exception e) {
-      System.err.println("Unable to connect to database: " + e);
+      LOG.error("Unable to connect to database: " + e);
       return null;
     }
 
@@ -128,7 +133,7 @@ public class ScmPgDump {
                       new String[]{"TABLE"})
       ) {
         if (!rs.next()) {
-          System.err.println("Unable to find any tables matching: catalog=" + catalog +
+          LOG.error("Unable to find any tables matching: catalog=" + catalog +
                   " schema=" + schema + " tables=" + rs.getString("TABLE_NAME"));
           rs.close();
         } else {
@@ -136,7 +141,7 @@ public class ScmPgDump {
             String tableName = rs.getString("TABLE_NAME");
             if (!Arrays.asList(tablesToSkip).contains(tableName))
               if ("TABLE".equalsIgnoreCase(rs.getString("TABLE_TYPE"))) {
-                System.out.println("Dumping TABLE: " + tableName);
+                LOG.info("Dumping TABLE: " + tableName);
                 dumpTable(dbConn, result, toUpper ? tableName : tableName.toUpperCase());
               }
           } while (rs.next());
@@ -146,7 +151,7 @@ public class ScmPgDump {
       dbConn.close();
       return result;
     } catch (SQLException e) {
-      e.printStackTrace();
+      LOG.error(e.toString());
     }
     return null;
   }
@@ -273,7 +278,7 @@ public class ScmPgDump {
       rs.close();
       stmt.close();
     } catch (SQLException e) {
-      System.err.println("Unable to dump table " + tableName + " because: " + e);
+      LOG.error("Unable to dump table " + tableName + " because: " + e);
     }
   }
 }
