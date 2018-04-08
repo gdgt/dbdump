@@ -67,5 +67,5 @@
 |	4	|	BYTEA	|	Variable-length binary data, ⇐ 2G	|	MEDIUMBLOB	|	Binary large object, ⇐ 16M	|
 |	5	|	INTEGER, INT	|	32-bit integer	|	INT, INTEGER	|	32-bit integer	|
 |	6	|	SMALLINT	|	16-bit integer	|	SMALLINT	|	16-bit integer	|
-|	7	|	TEXT	|	Variable-length character data, ⇐ 1G	|	TEXT	|	Character large object, ⇐ 64K	|
+|	7	|	TEXT	|	Variable-length character data, ⇐ 1G	|	LONGTEXT	|	Character large object, ⇐ 4G	|
 |	8	|	VARCHAR(n)	|	Variable-length string, 1 ⇐ n ⇐ 1G	|	VARCHAR(n)	|	Variable-length string, 1 ⇐ n ⇐ 65535	|
