@@ -56,3 +56,16 @@
     # tablesToSkip for scm Databases, e.g. audits
     # tablesToSkip=audits
     # catalog=
+
+# DB Mappings
+
+|		|	PostgreSQL	|		|	MySQL	|		|
+|-------|---------------|-------|-----------|-------|
+|	1	|	BIGINT	|	64-bit integer	|	BIGINT	|	64-bit integer	|
+|	2	|	BIT(n)	|	Fixed-length bit string	|	BIT(n)	|	Fixed-length bit string, 1 ⇐ n ⇐ 64	|
+|	3	|	BOOLEAN, BOOL	|	True, false or NULL	|	BOOLEAN, BOOL	|	0 or 1 value; NULL is not allowed	|
+|	4	|	BYTEA	|	Variable-length binary data, ⇐ 2G	|	MEDIUMBLOB	|	Binary large object, ⇐ 16M	|
+|	5	|	INTEGER, INT	|	32-bit integer	|	INT, INTEGER	|	32-bit integer	|
+|	6	|	SMALLINT	|	16-bit integer	|	SMALLINT	|	16-bit integer	|
+|	7	|	TEXT	|	Variable-length character data, ⇐ 1G	|	TEXT	|	Character large object, ⇐ 64K	|
+|	8	|	VARCHAR(n)	|	Variable-length string, 1 ⇐ n ⇐ 1G	|	VARCHAR(n)	|	Variable-length string, 1 ⇐ n ⇐ 65535	|
