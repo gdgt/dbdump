@@ -1,8 +1,6 @@
-# Dump PostgresSQL to MySQL DDL/DML
+# Dump PostgresSQL to MySQL
 	STOP Cluster
 	STOP MGMT services
-# dump embedded PostgresSQL and generate MySQL compliant DDL/DML
-	$ java -cp .:DbDump-1.0-SNAPSHOT-jar-with-dependencies.jar:postgresql-9.4-1200-jdbc41.jar com.gdgt.app.DbDump ./db.properties
 
 # Stop Cloudera Manager Agent on all nodes
 	[all nodes] service cloudera-scm-agent stop
@@ -10,14 +8,19 @@
 # Backup embedded PostgresSQL db.properties
 	cp /etc/cloudera-scm-server/db.properties /etc/cloudera-scm-server/db.properties.embedded
 
+# dump embedded PostgresSQL and generate MySQL compliant
+	$ java -cp .:DbDump-1.0-SNAPSHOT-jar-with-dependencies.jar:postgresql-9.4-1200-jdbc41.jar com.gdgt.app.DbDump ./db.properties
+
 # Make sure scm db doesn't exist in MySQL.
+	mysql -u root -ppassword -e 'show databases;'
+	Note: If it does drop the database [taking necessary backup]
 	mysql -u root -ppassword -e 'drop database scm;'
 
-# Setting up the Cloudera Manager Server Database.
+# Prepare SCM/Cloudera Manager Server Database.
 	sudo /usr/share/cmf/schema/scm_prepare_database.sh mysql -h $(hostname -f) -utemp -ppassword --scm-host $(hostname -f) scm scm scm
 	Full instructions here: https://www.cloudera.com/documentation/enterprise/latest/topics/cm_ig_installing_configuring_dbs.html#cmig_topic_5_2
 
-# Start Cloudera Manager server to populate the MySQL CM Schema, followed by Stop once the schema is populated.
+# Start Cloudera Manager server to populate the MySQL SCM Schema, then Stop the Cloudera Manager Server once the schema is populated.
 	service cloudera-scm-server restart
 	while ! (exec 6<>/dev/tcp/$(hostname)/7180) 2> /dev/null ; do echo 'Waiting for Cloudera Manager to start accepting connections...'; sleep 10; done
 	service cloudera-scm-server stop
