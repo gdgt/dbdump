@@ -8,13 +8,14 @@
 # Backup embedded PostgresSQL db.properties
 	cp /etc/cloudera-scm-server/db.properties /etc/cloudera-scm-server/db.properties.embedded
 
-# dump embedded PostgresSQL and generate MySQL compliant
+# Dump embedded PostgresSQL and generate MySQL compliant INSERT statement
+	service cloudera-scm-server stop
 	$ java -cp .:DbDump-1.0-SNAPSHOT-jar-with-dependencies.jar:postgresql-9.4-1200-jdbc41.jar com.gdgt.app.DbDump ./db.properties
 
-# Make sure scm db doesn't exist in MySQL.
+# Make sure SCM db doesn't exist in MySQL.
 	mysql -u root -ppassword -e 'show databases;'
-	Note: If it does drop the database [taking necessary backup]
-	mysql -u root -ppassword -e 'drop database scm;'
+	Note: If the SCM database exists, you will need to drop the database [taking necessary backup]
+	mysql -u root -ppassword -e 'drop database _the_name_of_the_scm_database_here;'
 
 # Prepare SCM/Cloudera Manager Server Database.
 	sudo /usr/share/cmf/schema/scm_prepare_database.sh mysql -h $(hostname -f) -utemp -ppassword --scm-host $(hostname -f) scm scm scm
