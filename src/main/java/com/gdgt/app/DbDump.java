@@ -117,26 +117,25 @@ public class DbDump {
       LOG.fatal("Unable to connect to database: " + e);
     }
 
+    Boolean toUpper = Boolean.parseBoolean(props.getProperty("tablesToUpper", "True"));
+    String schema = props.getProperty("schema", "public");
+    String catalog = props.getProperty("catalog", "");
+    String[] tablesToSkip = {};
+    if (props.containsKey("tablesToSkip")) {
+      tablesToSkip = props.getProperty("tablesToSkip").trim().split(",");
+    }
+
+    for (Map.Entry<Object, Object> entry : props.entrySet()) {
+      LOG.info(entry.getKey() + " = " + entry.getValue());
+    }
+
+    writeToFile("-- Generated: " +
+            new SimpleDateFormat("dd/MMM/yyyy HH:mm:ss.SSS")
+            .format(new java.util.Date())
+    );
+
     try {
-      Boolean toUpper = Boolean.parseBoolean(props.getProperty("tablesToUpper", "True"));
-      String schema = props.getProperty("schema", "public");
-      String catalog = props.getProperty("catalog", "");
-      String[] tablesToSkip = {};
-      if (props.containsKey("tablesToSkip")) {
-        tablesToSkip = props.getProperty("tablesToSkip").trim().split(",");
-      }
-
-      for (Map.Entry<Object, Object> entry : props.entrySet()) {
-        LOG.info(entry.getKey() + " = " + entry.getValue());
-      }
-
-      writeToFile("-- Generated: " +
-              new SimpleDateFormat("dd/MMM/yyyy HH:mm:ss.SSS").format(new java.util.Date()));
-
-      try (
-              ResultSet rs = dbMetaData.getTables(catalog, schema, "%",
-                      new String[]{"TABLE"})
-      ) {
+      try (ResultSet rs = dbMetaData.getTables(catalog, schema, "%", new String[]{"TABLE"})) {
         if (!rs.next()) {
           LOG.error("Unable to find any tables matching: catalog=" + catalog +
                   " schema=" + schema + " tables=" + rs.getString("TABLE_NAME"));
@@ -155,14 +154,17 @@ public class DbDump {
         }
       }
       dbConn.close();
-      writeToFile("\n-- DONE: " + new SimpleDateFormat("dd/MMM/yyyy HH:mm:ss.SSS")
-              .format(new java.util.Date()));
-      // System.out.println(data.toString());
-      LOG.info("-- Dump file saved in: " + outputFile);
-
     } catch (SQLException e) {
       LOG.error(e.toString());
     }
+
+    writeToFile("\n-- DONE: " +
+            new SimpleDateFormat("dd/MMM/yyyy HH:mm:ss.SSS")
+                    .format(new java.util.Date())
+    );
+
+    // System.out.println(data.toString());
+    LOG.info("-- Dump file saved in: " + outputFile);
   }
 
   /**
