@@ -51,7 +51,7 @@
     db.user=scm
     db.password=Rv3qXmCB8G
     outputFile=out.sql
-    toUpper=True
+    tablesToUpper=True
     schemaPattern=public
     # tablesToSkip for scm Databases, e.g. audits
     # tablesToSkip=audits
