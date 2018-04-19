@@ -64,7 +64,7 @@
     [cm-host]# service cloudera-scm-server restart
 
 ## 10. Log into Cloudera Manager and start the Cloudera Management Services and all the Cluster Services/Roles
-### 10.1 Start the Cloudera Manager Server and on all nodes stop Cloudera Manager Agent
+### 10.1 Start the Cloudera Manager Server and on all nodes start Cloudera Manager Agent
     [cm-host]# service cloudera-scm-server start
     [all nodes]# service cloudera-scm-agent start
 ### 10.2 Start all the Cluster Services/Roles

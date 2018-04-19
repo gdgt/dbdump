@@ -172,7 +172,6 @@ public class DbDump {
    */
   private static void dumpTable(Connection dbConn, String tableName) {
     try {
-      // First we output the create table stuff
       PreparedStatement stmt = dbConn.prepareStatement("SELECT * FROM " + tableName);
       ResultSet rs = stmt.executeQuery();
       ResultSetMetaData metaData = rs.getMetaData();
