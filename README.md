@@ -50,7 +50,7 @@
     [cm-host]# service cloudera-scm-server stop
     # Generate db.properties configuration file, which will be used for DbDump-1.0-SNAPSHOT-jar-with-dependencies.jar
     [cm-host]# grep 'name\|type\|host\|user\|password' /etc/cloudera-scm-server/db.properties.embedded | sed "s/com.cloudera.cmf.//g" > /tmp/db.properties
-    [cm-host]# java -cp .:DbDump-1.0-SNAPSHOT-jar-with-dependencies.jar:postgresql-9.4-1200-jdbc41.jar com.gdgt.app.DbDump /tmp/db.properties
+    [cm-host]# java -cp .:DbDump-1.0-SNAPSHOT-jar-with-dependencies.jar com.gdgt.app.DbDump /tmp/db.properties
     ...
     # Once the dump complete the file will be saved in out.sql which can be used to restore it in mysql
     ...
