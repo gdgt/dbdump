@@ -256,6 +256,11 @@ public class DbDump {
                 writeToFile("\"" + escaped + "\"");
               }
               break;
+            case Types.TIMESTAMP:
+              if (object instanceof java.util.Date) {
+                writeToFile("'" + new Timestamp(((java.util.Date) object).getTime()) + "'");
+              }
+              break;
             default:
               throw new UnsupportedOperationException("UnsupportedOperationException type: " +
                       metaData.getColumnName(i + 1) + ", " +
